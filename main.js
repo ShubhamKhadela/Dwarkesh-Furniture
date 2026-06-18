@@ -1,17 +1,17 @@
 /**
  * Dwarkesh Furnishing – Digital Business Card
- * Main JavaScript
+ * Main JavaScript - Enhanced with scroll animations
  */
 
 (function () {
   'use strict';
 
   // ===========================
-  // Scroll Fade-In Animations
+  // Scroll Fade-In Animations (Enhanced)
   // ===========================
   function initScrollAnimations() {
-    const fadeElements = document.querySelectorAll('.fade-in');
-    if (!fadeElements.length) return;
+    const animatedElements = document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .scale-in');
+    if (!animatedElements.length) return;
 
     const observerOptions = {
       root: null,
@@ -37,7 +37,36 @@
       });
     }, observerOptions);
 
-    fadeElements.forEach((el) => observer.observe(el));
+    animatedElements.forEach((el) => observer.observe(el));
+  }
+
+  // ===========================
+  // Topnav Scroll Effect
+  // ===========================
+  function initTopnavScroll() {
+    const topnav = document.getElementById('topnav');
+    if (!topnav) return;
+
+    let lastScroll = 0;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          
+          if (scrollY > 50) {
+            topnav.classList.add('scrolled');
+          } else {
+            topnav.classList.remove('scrolled');
+          }
+          
+          lastScroll = scrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
   }
 
   // ===========================
@@ -74,21 +103,20 @@
   }
 
   function initSaveContact() {
-    const saveButtons = document.querySelectorAll('#btn-save-contact, #btn-save-contact-2');
+    // All save contact buttons including nav save button
+    const saveButtons = document.querySelectorAll('#btn-save-contact, #btn-save-contact-2, #btn-nav-save');
     saveButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         generateVCard();
 
         // Brief visual feedback
-        const originalText = btn.querySelector('span:last-child');
-        if (originalText) {
-          const original = originalText.textContent;
-          originalText.textContent = 'Saved! ✓';
-          btn.style.background = 'linear-gradient(135deg, #25D366, #128C7E)';
+        const textEl = btn.querySelector('span:last-child') || btn.querySelector('span');
+        if (textEl) {
+          const original = textEl.textContent;
+          textEl.textContent = 'Saved! ✓';
           setTimeout(() => {
-            originalText.textContent = original;
-            btn.style.background = '';
+            textEl.textContent = original;
           }, 2000);
         }
       });
@@ -114,7 +142,7 @@
   // Button Ripple Effect
   // ===========================
   function initButtonRipple() {
-    const buttons = document.querySelectorAll('.hero__btn, .contact__btn, .location__btn');
+    const buttons = document.querySelectorAll('.hero__btn, .contact__btn, .location__btn, .topnav__btn');
 
     buttons.forEach((btn) => {
       btn.addEventListener('click', function (e) {
@@ -130,7 +158,7 @@
           height: ${size}px;
           left: ${x}px;
           top: ${y}px;
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.25);
           border-radius: 50%;
           transform: scale(0);
           animation: rippleEffect 0.6s ease-out;
@@ -182,14 +210,51 @@
   }
 
   // ===========================
+  // Scroll-triggered section reveals
+  // ===========================
+  function initSectionReveals() {
+    // Add animated borders to service cards on scroll
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach((card, index) => {
+      card.style.transitionDelay = `${(index % 6) * 80}ms`;
+    });
+
+    // Add subtle tilt on service category hover
+    const categories = document.querySelectorAll('.services__category');
+    categories.forEach((cat) => {
+      cat.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-4px)';
+        this.style.boxShadow = '0 12px 40px rgba(74, 47, 34, 0.12)';
+      });
+      cat.addEventListener('mouseleave', function() {
+        this.style.transform = '';
+        this.style.boxShadow = '';
+      });
+    });
+  }
+
+  // ===========================
+  // Counter animation for stats
+  // ===========================
+  function initCounterAnimation() {
+    const stats = document.querySelectorAll('.about__stat');
+    stats.forEach((stat, index) => {
+      stat.style.transitionDelay = `${index * 150}ms`;
+    });
+  }
+
+  // ===========================
   // Initialize
   // ===========================
   function init() {
     initScrollAnimations();
+    initTopnavScroll();
     initSaveContact();
     initSmoothScroll();
     initButtonRipple();
     initHeroParallax();
+    initSectionReveals();
+    initCounterAnimation();
   }
 
   if (document.readyState === 'loading') {
